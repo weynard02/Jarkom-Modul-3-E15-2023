@@ -1,0 +1,1 @@
+ab -n 100 -c 10 -p data.json -T application/json http://10.44.2.2:88/api/auth/login
