@@ -123,6 +123,231 @@ service bind9 restart
 
 ## Soal 1
 
+## Soal 2
+
+## Soal 3
+
+## Soal 4
+
+## Soal 5
+
+## Soal 6
+
+> Pada masing-masing worker PHP, lakukan konfigurasi virtual host untuk website berikut dengan menggunakan php 7.3. (6)
+
+Pada soal ini, kita diminta untuk melakukan konfigurasi host nginx pada worker PHP yaitu Lawine, Linie, Lugner. Pertama kita lakukan koneksi pada nameserver `192.168.122.1` untuk mendapatkan internet NAT dan lakukan penginstallan nginx.
+
+```sh
+apt-get update && apt-get install nginx -y
+service nginx restart
+```
+
+Tidak lupa juga untuk sekaligus melakukan restart nginx
+
+Kemudian, kita akan melakukan penginstalan php-fpm versi 7.3
+
+```sh
+apt-get install php php-fpm -y
+service php7.3-fpm start
+service php7.3-fpm status
+```
+
+Penjelasan:
+
+- melakukan penginstallan `php php-fpm`
+- melakukan start pada `php7.3-fpm`
+- mengecek status untuk `php7.3-fpm`
+
+Berikutnya, kami mendownload zip `granz.channel.yyy.com.zip` dengan menggunakan wget melalui github kami sendiri dan melakukan unzip
+
+```sh
+apt-get install wget unzip -y
+
+wget https://github.com/weynard02/jarkom-modul3-resources/archive/refs/heads/main.zip
+
+unzip main.zip
+```
+
+Setelah itu, melakukan konfigurasi worker pada `/etc/nginx/sites-available/granz` dengan isi sebagai berikut
+
+```sh
+echo '
+server {
+
+        listen 80;
+
+        root /var/www/granz;
+
+        index index.php index.html index.htm;
+        server_name _;
+
+        location / {
+                        try_files $uri $uri/ /index.php?$query_string;
+        }
+
+        # pass PHP scripts to FastCGI server
+        location ~ \.php$ {
+                include snippets/fastcgi-php.conf;
+                fastcgi_pass unix:/var/run/php/php7.3-fpm.sock;
+        }
+        location ~ /\.ht {
+                        deny all;
+        }
+
+        error_log /var/log/nginx/granz_error.log;
+        access_log /var/log/nginx/granz_access.log;
+ } ' > /etc/nginx/sites-available/granz
+```
+
+Penjelasan:
+
+- Menggunakan port default: 80
+- website akan dieksekusi dari /var/www/granz
+- `fastcgi_pass` yang digunakan adalah php7.3-fpm
+
+Berikutnya membuat symlink pada `sites-enabled`
+
+```sh
+ln -s /etc/nginx/sites-available/granz /etc/nginx/sites-enabled
+```
+
+Kemudian kita memindahkan website `granz.channel.yyy.com` yang kita download pada lokasi `/var/www/granz`
+
+```sh
+mkdir var/www/granz
+
+mv jarkom-modul3-resources-main/granz.channel.E15.com/modul-3/* var/www/granz/
+```
+
+Remove page nginx defaultnya untuk masing-masing worker
+
+```sh
+rm -rf /etc/nginx/sites-enabled/default
+```
+
+Terakhir, kita dapat menjalankan restart php7.3-fpm dan nginx
+
+```sh
+service php7.3-fpm restart
+service nginx restart
+```
+
+Langkah-langkah berlaku untuk masing-masing worker PHP dan dapat siap untuk digunakan. Untuk melakukan testing dapat menggunakan `lynx` untuk mengakses ip worker tersebut
+
+```sh
+apt-get install lynx -y
+```
+
+### Screenshot:
+
+## Soal 7
+
+> Kepala suku dari Bredt Region memberikan resource server sebagai berikut:
+> Lawine, 4GB, 2vCPU, dan 80 GB SSD.
+> Linie, 2GB, 2vCPU, dan 50 GB SSD.
+> Lugner 1GB, 1vCPU, dan 25 GB SSD.
+> aturlah agar Eisen dapat bekerja dengan maksimal, lalu lakukan testing dengan 1000 request dan 100 request/second. (7)
+
+Pada soal ini kita diminta untuk membuat server yang dapat menghandle worker-worker PHP yaitu dengan menggunakan Load Balancer Eisen dan kemudian melakukan testing dengan 1000 requests dan 100 requests/second.
+
+Sebelum itu, kita akan melakukan instalasi persiapan pada Eisen terlebih dahulu
+
+```sh
+apt-get update && apt-get install apache2-utils -y
+apt-get install nginx php php-fpm -y
+apt-get install htop -y
+apt-get install lynx -y
+```
+
+Penjelasan:
+
+- `apache2-utils` untuk melakukan testing benchmark requests
+- `nginx php php-fpm` untuk konfigurasi load balancer
+- `htop` sebagai monitor resources
+- `lynx` sebagai penguji IP site
+
+Diketahui bahwa spesifikasi tiap worker sebagai berikut
+
+```
+- Lawine, 4GB, 2vCPU, dan 80 GB SSD.
+- Linie, 2GB, 2vCPU, dan 50 GB SSD.
+- Lugner 1GB, 1vCPU, dan 25 GB SSD.
+```
+
+Semakin besar angka spesifikasi tersebut, semakin kuat worker tersebut dan pastinya semakin terprioritas. Oleh karena itu, kita dapat mengakali dengan menggunakan algoritma Weighted Robin Round pada Load Balancer yang di mana server yang memiliki weight paling besar akan dijadikan prioritas ketika menerima request dari client. Weight juga akan memastikan bahwa server yang lebih kuat memiliki beban yang lebih besar. Konfigurasi load balancing pada Eisen sebagai berikut
+
+```sh
+echo '
+upstream backend  {
+        server 10.44.3.1 weight=640; #IP Lawine
+        server 10.44.3.2 weight=200; #IP Linie
+        server 10.44.3.3 weight=25; #IP Lugner
+}
+
+server {
+        listen 80;
+        server_name granz.channel.E15.com www.granz.channel.E15.com;
+
+        location / {
+                proxy_pass http://backend;
+                proxy_set_header    X-Real-IP $remote_addr;
+                proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header    Host $http_host;
+
+        }
+        error_log /var/log/nginx/lb_error.log;
+        access_log /var/log/nginx/lb_access.log;
+
+}' > /etc/nginx/sites-available/lb-eisen
+```
+
+Penjelasan:
+
+- Weight ini dihitung melalui hasil perkalian
+  - Lawine 4*2*80 = 640
+  - Linie 2*2*50 = 200
+  - Lugner 1*1*25 = 25
+- menggunakan listen port default=80
+- menggunakan server name `granz.channel.E15.com www.granz.channel.E15.com`
+- konfigurasi ini dinamakan `lb-eisen` pada `/etc/nginx/sites-available/lb-eisen`
+
+Kemudian, membuat symlink pada sites-enabled dan melakukan restart nginx
+
+```sh
+ln -s /etc/nginx/sites-available/lb-eisen /etc/nginx/sites-enabled
+service nginx restart
+```
+
+Untuk melakukan testing, kita akan menggunakan Apache Benchmark dengan 1000 requests dan 100 requests per second.
+
+```sh
+mkdir /root/benchmark
+cd /root/benchmark
+ab -n 1000 -c 100 -g out.data http://10.44.2.2/
+cd /
+```
+
+Penjelasan:
+
+- Di sini kami membuat folder benchmark sebagai tempat hasil data testing yang diperoleh.
+- `-n` merupakan argumen jumlah requests
+- `-c` merupakan argumen konkurensi (requests/second)
+- `-g` merupakan argumen untuk mengirimkan data pada `out.data`
+- URL yang digunakan adalah IP dari Load Balancer Eisen
+- Hasil testing tersebut berada di /root/benchmark/out.data
+
+### Screenshot:
+
+## Soal 8
+
+## Soal 9
+
+## Soal 10
+
+## Soal 11
+
+## Soal 12
+
 ## Soal 13
 
 > Karena para petualang kehabisan uang, mereka kembali bekerja untuk mengatur riegel.canyon.yyy.com. Semua data yang diperlukan, diatur pada Denken dan harus dapat diakses oleh Frieren, Flamme, dan Fern. (13)
@@ -353,8 +578,8 @@ server {
 
     # pass PHP scripts to FastCGI server
     location ~ \.php$ {
-    include snippets/fastcgi-php.conf;
-    fastcgi_pass unix:/var/run/php/php8.0-fpm.sock;
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php8.0-fpm.sock;
     }
 
 location ~ /\.ht {
@@ -373,6 +598,7 @@ Penjelasan:
 
 - Menggunakan port worker default = 80
 - Menggunakan root `/var/www/laravel-praktikum-jarkom/public`
+- fastcgi yang digunakan adalah php versi 8.0
 - `ln -s /etc/nginx/sites-available/riegel /etc/nginx/sites-enabled/` untuk symlink
 - `mv /laravel-praktikum-jarkom /var/www` memindahkan project Laravel pada dalam folder /var/www
 
@@ -634,6 +860,163 @@ Untuk pengujian:
 - lynx 10.44.2.2:88/frieren
 - lynx 10.44.2.2:88/flamme
 - lynx 10.44.2.2:88/fern
+
+## Soal 19
+
+> Untuk meningkatkan performa dari Worker, coba implementasikan PHP-FPM pada Frieren, Flamme, dan Fern. Untuk testing kinerja naikkan
+>
+> - pm.max_children
+> - pm.start_servers
+> - pm.min_spare_servers
+> - pm.max_spare_servers
+
+> sebanyak tiga percobaan dan lakukan testing sebanyak 100 request dengan 10 request/second kemudian berikan hasil analisisnya pada Grimoire.(19)
+
+Variabel-variabel yang disebutkan dapat ditemukan pada worker yang menggunakan PHP-FPM di `/etc/php/8.0/fpm/pool.d/www.conf`.
+
+Berikut penjelasan untuk masing-masing variabel
+
+- `pm.max_children` merupakan jumlah maksimum proses child yang dapat dibuat oleh PHP-FPM. Jumlah ini disesuaikan dengan kapasitas server sehingga tidak melebihi sumber daya
+- `pm.start_servers` merupakan jumlah proses child yang dibuat saat pertama kali dijalankan
+- `pm.min_spare_servers` merupakan jumlah minimum proses child yang harus tetap aktif saat server berjalan sehingga dapat siap menangani permintaan tanpa perlu dibuat ulang.
+- `pm.max_spare_servers` merupakan jumlah maksimum proses child yang tetap aktif pada suatu waktu.
+
+Untuk menguji performa untuk masing-masing worker ada 4 konfigurasi (1 default + 3 proses naikkan) yang akan digunakan
+
+- Default
+
+```
+pm.max_children = 5
+pm.start_servers = 2
+pm.min_spare_servers = 1
+pm.max_spare_servers = 3
+```
+
+- Naik 1
+
+```
+pm.max_children = 20
+pm.start_servers = 5
+pm.min_spare_servers = 2
+pm.max_spare_servers = 6
+```
+
+- Naik 2
+
+```
+pm.max_children = 50
+pm.start_servers = 10
+pm.min_spare_servers = 5
+pm.max_spare_servers = 15
+```
+
+- Naik 3
+
+```
+pm.max_children = 100
+pm.start_servers = 15
+pm.min_spare_servers = 10
+pm.max_spare_servers = 20
+```
+
+Untuk masing-masing konfigurasi yang akan digunakan, bisa langsung menggantikan variabel-variabel menjadi yang di atas pada `/etc/php/8.0/fpm/pool.d/www.conf`
+
+Setiap kali ada perubahan file tersebut, jangan lupa untuk melakukan php-fpm restart dan nginx restart
+
+```sh
+/etc/init.d/php8.0-fpm restart
+service nginx restart
+```
+
+Untuk memastikan di Eisen, dapat dilakukan nginx restart
+
+Untuk melakukan testing, kami akan menggunakan command
+
+```sh
+ab -n 100 -c 10 -p data.json -T application/json http://10.44.2.2:88/api/auth/login
+```
+
+Penjelasan: Di mana 10.44.2.2:88 merupakan ip dan port untuk load balancer laravel pada client Sein. ada 100 requests dan 10 requests/second.
+
+### Screenshot:
+
+- Konfigurasi Default:
+  ![images](imgs/19-0.png)
+
+- Konfigurasi Naik 1:
+  ![images](imgs/19-1.png)
+
+- Konfigurasi Naik 2:
+  ![images](imgs/19-2.png)
+
+- Konfigurasi Naik 3:
+  ![images](imgs/19-3.png)
+
+#### Kesimpulan:
+
+Berdasarkan hasil analisis yang diberikan, dengan konfigurasi PHP-FPM, dapat meningkatkan performa seperti time taken for tests dan requests per second. Akan tetapi, tidak ada jaminan bahwa hasil yang didapatkan selalu lebih baik dari yang lain karena ada percobaan hanya dilakukan sekali, beberapa percobaan yang tidak membuktikan bahwa meningkatkan PHP-FPM dapat performa yang lebih baik, dan ada faktor lain seperti kekuatan server, load balancer, atau worker
+
+## Soal 20
+
+> Nampaknya hanya menggunakan PHP-FPM tidak cukup untuk meningkatkan performa dari worker maka implementasikan Least-Conn pada Eisen. Untuk testing kinerja dari worker tersebut dilakukan sebanyak 100 request dengan 10 request/second.
+
+Untuk soal ini, kita cukup mengimplementasikan Least-conn pada Load Balancer Laravel pada Eisen menjadi sebagai berikut:
+
+```sh
+echo '
+upstream laravel {
+        least_conn;
+        server 10.44.4.1;
+        server 10.44.4.2;
+        server 10.44.4.3;
+}
+
+server {
+        listen 88;
+        server_name riegel.canyon.E15.com www.riegel.canyon.E15.com;
+
+        location / {
+                proxy_pass http://laravel;
+        }
+
+        location /frieren/ {
+                proxy_bind 10.44.2.2;
+                proxy_pass http://10.44.4.1/;
+        }
+
+        location /flamme/ {
+                proxy_bind 10.44.2.2;
+                proxy_pass http://10.44.4.2/;
+        }
+
+        location /fern/ {
+                proxy_bind 10.44.2.2;
+                proxy_pass http://10.44.4.3/;
+        }
+
+
+}
+
+' > /etc/nginx/sites-available/lb-laravel
+```
+
+Tidak lupa juga untuk melakukan restart nginx
+
+Untuk testing ini, kita akan mencoba dengan command sebelumnya
+
+```sh
+ab -n 100 -c 10 -p data.json -T application/json http://10.44.2.2:88/api/auth/login
+```
+
+dengan konfigurasi PHP-FPM Naik 3
+
+### Screenshot:
+
+![images](imgs/20.png)
+
+#### Kesimpulan:
+
+Dapat dilihat bahwa dengan menggunakan least_conn, didapatkan time taken for tests lebih cepat, requests per second yang lebih besar, longest request yang lebih rendah, dan CPU yang lebih rendah daripada menggunakan round robin
 
 ---
 
