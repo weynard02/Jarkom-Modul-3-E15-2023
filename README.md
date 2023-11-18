@@ -570,6 +570,71 @@ Penjelasan:
 
 Penjelasan: di sini 100 requests dapat dilalui dengan lancar
 
+## Soal 18
+
+> Untuk memastikan ketiganya bekerja sama secara adil untuk mengatur Riegel Channel maka implementasikan Proxy Bind pada Eisen untuk mengaitkan IP dari Frieren, Flamme, dan Fern. (18)
+
+Agar dapat mengaitkan IP dari Frieren, Flamme, dan Fren. Kita membutuhkan load balancer dari Eisen. Kita akan membuatkan konfigurasi load balancer yang baru untuk worker-worker laravel dengan mengimplementasikan Proxy Bind.
+
+```sh
+echo '
+upstream laravel {
+        server 10.44.4.1;
+        server 10.44.4.2;
+        server 10.44.4.3;
+}
+
+server {
+        listen 88;
+        server_name riegel.canyon.E15.com www.riegel.canyon.E15.com;
+
+        location / {
+                proxy_pass http://laravel;
+        }
+
+        location /frieren/ {
+                proxy_bind 10.44.2.2;
+                proxy_pass http://10.44.4.1/;
+        }
+
+        location /flamme/ {
+                proxy_bind 10.44.2.2;
+                proxy_pass http://10.44.4.2/;
+        }
+
+        location /fern/ {
+                proxy_bind 10.44.2.2;
+                proxy_pass http://10.44.4.3/;
+        }
+
+
+}
+
+' > /etc/nginx/sites-available/lb-laravel
+
+
+ln -s /etc/nginx/sites-available/lb-laravel /etc/nginx/sites-enabled
+service nginx restart
+```
+
+Penjelasan:
+
+- mengaitkan server dari IP Frieren, Flamme, dan Fren.
+- `listen` menggunakan port 88 karena default 80 sudah digunakan pada load balancer PHP workers
+- `proxy_bind` digunakan pada lokasi belakang Frieren, Flamme, dan Fren, yang di mana masing-masing mengarah ke IP Eisen (Load Balancer) dengan proxy_pass yang mengarah ke masing-masing IP Laravel Worker
+- Konfigurasi akan tersimpan pada `/etc/nginx/sites-available/lb-laravel`
+- dibuat symlink pada sites-enabled
+- kemudian tidak lupa untuk melakukan restart nginx
+
+### Screenshot:
+
+Untuk pengujian:
+
+- lynx 10.44.2.2:88
+- lynx 10.44.2.2:88/frieren
+- lynx 10.44.2.2:88/flamme
+- lynx 10.44.2.2:88/fern
+
 ---
 
 ## Kendala:
