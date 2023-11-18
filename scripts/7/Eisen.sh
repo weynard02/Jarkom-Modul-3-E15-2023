@@ -13,7 +13,7 @@ upstream backend  {
 
 server {
         listen 80;
-        7server_name granz.channel.E15.com www.granz.channel.E15.com;
+        server_name granz.channel.E15.com www.granz.channel.E15.com;
 
         location / {
                 proxy_pass http://backend;

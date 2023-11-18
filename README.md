@@ -406,6 +406,170 @@ lynx 10.44.4.3 # IP Fern
 
 ### Screenshot:
 
+## Soal 15
+
+> Riegel Channel memiliki beberapa endpoint yang harus ditesting sebanyak 100 request dengan 10 request/second. Tambahkan response dan hasil testing pada grimoire.
+> POST /auth/register (15)
+
+Untuk soal ini dan sampai dengan soal 17, kita perlu melakukan testing pada client (kasus kali ini kami menggunakan Sein) dengan salah satu worker saja. Pada /auth/register, kita perlu suatu request untuk bisa mengakses pada url tersebut. Untuk melakukan Apache Benchmark, kita perlu menyiapkan request dalam data.json.
+
+```sh
+echo '
+{
+    "username": "kelompokE15",
+    "password": "passwordE15"
+}
+' > data.json
+```
+
+Kita dapat melakukan **testing** terlebih dahulu dengan 100 requests dan 10 requests/second pada worker Frieren.
+
+```sh
+ab -n 100 -c 10 -p data.json -T application/json http://10.44.4.1/api/auth/register
+```
+
+Penjelasan:
+
+- `-n` merupakan argumen jumlah requests
+- `-c` merupakan argumen konkurensi (requests/second)
+- `-p` merupakan argumen POST untuk suatu `data.json`
+- `-T` merupakan type applicationnya yaitu `application/json`
+- URLnya merupakan IP Frieren `/api/auth/register`
+
+### Screenshot:
+
+![images](imgs/15-ab.png)
+
+Penjelasan: di sini, ada 99 failed requests, karena pada tabel users, username bersifat unik (hanya 1)
+
+```
+$table->string('username')->unique(); // dari migration user
+```
+
+Untuk mendapatkan **response**nya kita dapat menggunakan perintah curl, ada 2 jawaban kemungkinan yang didapat antara karena data user sudah diinputkan atau belum
+
+```sh
+curl -X POST -H "Content-Type: application/json" -d '{"username": "kelompokE15","password": "passwordE15"}' http://10.44.4.1/api/auth/register
+```
+
+Penjelasan:
+
+- `-X POST` merupakan jenisnya yaitu metode POST
+- `-H` merupakan header yang menyatakan bahwa `Content-Type: application/json`
+- `-d` merupakan data requestnya
+
+### Screenshot:
+
+Jika data request sudah diregister sebelumnya
+
+![images](imgs/15-curl-1.png)
+
+Jika memasukkan data request yang baru
+
+![images](imgs/15-curl-2.png)
+
+## Soal 16
+
+> POST /auth/login (16)
+
+Pada /auth/login ini, kita akan menggunakan data.json sebelumnya bahan untuk melakukan login pada API.
+
+Untuk **testing** sebagai berikut
+
+```sh
+ab -n 100 -c 10 -p data.json -T application/json http://10.44.4.1/api/auth/login
+```
+
+Penjelasan:
+
+- `-n` merupakan argumen jumlah requests
+- `-c` merupakan argumen konkurensi (requests/second)
+- `-p` merupakan argumen POST untuk suatu `data.json`
+- `-T` merupakan type applicationnya yaitu `application/json`
+- URLnya merupakan IP Frieren `/api/auth/login`
+
+### Screenshot:
+
+![images](imgs/16-ab.png)
+
+Penjelasan: Di sini dilihat bahwa ada sebanyak 39 requests yang gagal dan CPU workernya mencapai 100%. Hal ini membuktikan bahwa 1 worker tidak kuat untuk memproses 100 requests dalam 10 requests/second.
+
+Untuk mendapatkan **response**, kita akan menggunakan perintah curl
+
+```sh
+curl -X POST -H "Content-Type: application/json" -d '{"username": "kelompokE15","password": "passwordE15"}' http://10.44.4.1/api/auth/login
+```
+
+Penjelasan:
+
+- `-X POST` merupakan jenisnya yaitu metode POST
+- `-H` merupakan header yang menyatakan bahwa `Content-Type: application/json`
+- `-d` merupakan data requestnya
+
+### Screenshot:
+
+![images](imgs/16-curl.png)
+
+Penjelasan: **Response** yang diterima adalah sebuah token, yang di mana akan berguna untuk authentikasi dan authorisasi nantinya.
+
+## Soal 17
+
+> GET /me (17)
+
+`/me` memerlukan authentikasi / authorisasi. Di sinilah kita akan menggunakan token yang baru saja kita dapatkan. Sebelum itu, kita dapat memindahkan token di atas pada suatu txt. Oleh karena itu, kita perlu install suatu package untuk menangani bentuk json
+
+```sh
+apt-get install jq -y
+```
+
+Kemudian kita ambil token dari curl sebelumnya dengan menggunakan jq yang akan mengfilter token aslinya pada `login.txt`
+
+```sh
+curl -X POST -H "Content-Type: application/json" -d '{"username": "kelompokE15","password": "passwordE15"}' http://10.44.4.1/api/auth/login | jq -r '.token' > login.txt
+```
+
+### Screenshot:
+
+![images](imgs/17-curl-jq.png)
+
+token sudah tersimpan pada login.txt. Selanjutnya kita akan menguji **response** yang didapatkan melalui curl.
+
+```sh
+token=$(cat login.txt) | curl -X GET -H "Content-Type: application/json" -H "Authorization: Bearer $token" http://10.44.4.1/api/me
+```
+
+Penjelasan:
+
+- token akan diambil dari login.txt sebagai variabel
+- `-X GET` merupakan jenisnya yaitu metode GET
+- `-H` merupakan header yang menyatakan bahwa `Content-Type: application/json` dan akan menggunakan Authorization berjenis Bearer dengan `$token`
+
+### Screenshot:
+
+![images](imgs/17-curl.png)
+
+Penjelasan: di sini kita dapat **response** berupa data diri kita.
+
+Kemudian untuk **testing** sebagai berikut:
+
+```sh
+token=$(cat login.txt) | ab -n 100 -c 10 -H "Authorization: Bearer $token" http://10.44.4.1/api/me
+```
+
+Penjelasan:
+
+- token akan diambil dari login.txt sebagai variabel
+- `-n` merupakan argumen jumlah requests
+- `-c` merupakan argumen konkurensi (requests/second)
+- `-H` merupakan header yang menyatakan bahwa `Content-Type: application/json` dan akan menggunakan Authorization berjenis Bearer dengan `$token`
+- URLnya merupakan IP Frieren `/api/me`
+
+### Screenshot:
+
+![images](imgs/17-ab.png)
+
+Penjelasan: di sini 100 requests dapat dilalui dengan lancar
+
 ---
 
 ## Kendala:
