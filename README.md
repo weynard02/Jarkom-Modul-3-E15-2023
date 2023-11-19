@@ -18,6 +18,129 @@
     </tr>
 </table>
 
+## Topologi 
+
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/9d1c3cf3-b4ff-41db-a821-9fed21bf46a1)
+
+## Config
+
+### Aura (DHCP Relay) 
+```
+auto eth0
+iface eth0 inet dhcp
+
+auto eth1
+iface eth1 inet static
+	address 10.44.1.9
+	netmask 255.255.255.0
+
+auto eth2
+iface eth2 inet static
+	address 10.44.2.9
+	netmask 255.255.255.0
+
+auto eth3
+iface eth3 inet static
+	address 10.44.3.9
+	netmask 255.255.255.0
+
+auto eth4
+iface eth4 inet static
+	address 10.44.4.9
+	netmask 255.255.255.0
+```
+### Himmel (DHCP Server)
+```
+auto eth0
+iface eth0 inet static
+	address 10.44.1.1
+	netmask 255.255.255.0
+	gateway 10.44.1.9
+```
+
+### Heiter (DNS Server)
+```
+auto eth0
+iface eth0 inet static
+	address 10.44.1.2
+	netmask 255.255.255.0
+	gateway 10.44.1.9
+```
+
+### Denken (Database Server)
+```
+auto eth0
+iface eth0 inet static
+	address 10.44.2.1
+	netmask 255.255.255.0
+	gateway 10.44.2.9
+```
+
+### Eisen (Load Balancer)
+```
+auto eth0
+iface eth0 inet static
+	address 10.44.2.2
+	netmask 255.255.255.0
+	gateway 10.44.2.9
+```
+
+### Frieren (Laravel Worker)
+```
+auto eth0
+iface eth0 inet dhcp
+hwaddress ether ea:55:45:79:05:39
+```
+
+### Flamme (Laravel Worker)
+```
+auto eth0
+iface eth0 inet dhcp
+hwaddress ether 92:b0:a7:d3:41:24
+```
+
+### Fern (Laravel Worker)
+```
+auto eth0
+iface eth0 inet dhcp
+hwaddress ether 7e:a9:a1:90:cc:20
+```
+
+### Lawine (PHP Worker)
+```
+auto eth0
+iface eth0 inet dhcp
+hwaddress ether ce:12:90:c4:d1:89
+```
+
+### Linie (PHP Worker)
+```
+auto eth0
+iface eth0 inet dhcp
+hwaddress ether 12:8d:e0:8b:be:aba
+```
+
+### Lugner (PHP Worker)
+```
+auto eth0
+iface eth0 inet dhcp
+hwaddress ether a2:50:1c:66:1a:24
+```
+
+### Revolte, Richter, Sein, Stark (Client)
+```
+auto eth0
+iface eth0 inet dhcp
+```
+
+## Setup
+Pada .bashrc menggunakan nano :
+
+### Aura
+```
+
+```
+
 ## Soal 0
 
 > kalian diminta untuk melakukan register domain berupa riegel.canyon.yyy.com untuk worker Laravel dan granz.channel.yyy.com untuk worker PHP (0) mengarah pada worker yang memiliki IP [prefix IP].x.1.
