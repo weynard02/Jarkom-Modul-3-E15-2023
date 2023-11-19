@@ -1054,19 +1054,87 @@ ab -n 200 -c 10 http://10.44.2.2/
 
 > Selanjutnya coba tambahkan konfigurasi autentikasi di LB dengan dengan kombinasi username: “netics” dan password: “ajkyyy”, dengan yyy merupakan kode kelompok. Terakhir simpan file “htpasswd” nya di /etc/nginx/rahasisakita/
 
+Tambahkan code berikut pada Eisen (Load Balancer) :
+```
+mkdir /etc/nginx/rahasisakita
+touch /etc/nginx/rahasisakita/.htpasswd
+htpasswd -b -c /etc/nginx/rahasisakita/.htpasswd netics ajkE15
+```
+
+**Keterangan :**
+username : netics
+password : ajkE15
+
+Setelah memasukkan username dan password, sekarang coba tambahkan perintah berikut pada setup Nginx:
+```
+auth_basic "Administrators Area";
+auth_basic_user_file /etc/nginx/rahasisakita/.htpasswd;
+```
+
 ### Screenshot:
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/f1d4bb05-dd6d-4091-a399-a1012dca963c)
+
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/57a20831-1db3-46e5-aa6b-03c40251f3c5)
+
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/d8f3b048-05b3-4fec-a50a-47afc8d3e6c8)
+
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/44d6da9f-e5ab-4946-9755-256dae33b870)
 
 ## Soal 11
 
 > Lalu buat untuk setiap request yang mengandung /its akan di proxy passing menuju halaman https://www.its.ac.id.
 
+Lakukan konfigurasi tambahan pada nginx sebagai berikut:
+```
+location /its {
+	proxy_pass https://www.its.ac.id;
+}
+```
+
+Maksudnya adalah ketika kita melakukan akses pada endpoint yang mengandung /its akan diarahkan oleh proxy_pass menuju https://www.its.ac.id. Jadi ketika melakukan testing pada client dengan menggunakan perintah berikut:
+```
+lynx http://10.44.2.2/its
+```
+
 ### Screenshot:
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/0307f9ae-698f-40e5-944f-d15a25b2bf9b)
+
 
 ## Soal 12
 
 > Selanjutnya LB ini hanya boleh diakses oleh client dengan IP [Prefix IP].3.69, [Prefix IP].3.70, [Prefix IP].4.167, dan [Prefix IP].4.168.
 
+Lakukan konfigurasi tambahan pada nginx sebagai berikut:
+```
+allow 10.44.3.69;
+                allow 10.44.3.70;
+                allow 10.44.4.167;
+                allow 10.44.4.168;
+                deny all;
+```
+
+**IP Deny**
+
 ### Screenshot:
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/51ff9a43-d235-4dfe-96cf-3409b3d20afe)
+
+**IP Allow**
+
+Cara untuk testingnya:
+
+Karena IP yang diberikan random, sekarang kami akan melakukan tambahan allow pada IP 10.44.4.14 pada konfigurasi sebelumnya, karena ip client yang mau di test yaitu 10.44.4.14.
+
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/e075c88e-3c9a-44c6-aaaa-ab4ab11a2c72)
+
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/a8355088-e43f-4aad-b379-90a5d47473fd)
+
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/f1d4bb05-dd6d-4091-a399-a1012dca963c)
+
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/57a20831-1db3-46e5-aa6b-03c40251f3c5)
+
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/d8f3b048-05b3-4fec-a50a-47afc8d3e6c8)
+
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/44d6da9f-e5ab-4946-9755-256dae33b870)
 
 ## Soal 13
 
