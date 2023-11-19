@@ -18,13 +18,14 @@
     </tr>
 </table>
 
-## Topologi 
+## Topologi
 
 ![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/9d1c3cf3-b4ff-41db-a821-9fed21bf46a1)
 
 ## Config
 
-### Aura (DHCP Relay) 
+### Aura (DHCP Relay)
+
 ```
 auto eth0
 iface eth0 inet dhcp
@@ -49,7 +50,9 @@ iface eth4 inet static
 	address 10.44.4.9
 	netmask 255.255.255.0
 ```
+
 ### Himmel (DHCP Server)
+
 ```
 auto eth0
 iface eth0 inet static
@@ -59,6 +62,7 @@ iface eth0 inet static
 ```
 
 ### Heiter (DNS Server)
+
 ```
 auto eth0
 iface eth0 inet static
@@ -68,6 +72,7 @@ iface eth0 inet static
 ```
 
 ### Denken (Database Server)
+
 ```
 auto eth0
 iface eth0 inet static
@@ -77,6 +82,7 @@ iface eth0 inet static
 ```
 
 ### Eisen (Load Balancer)
+
 ```
 auto eth0
 iface eth0 inet static
@@ -86,6 +92,7 @@ iface eth0 inet static
 ```
 
 ### Frieren (Laravel Worker)
+
 ```
 auto eth0
 iface eth0 inet dhcp
@@ -93,6 +100,7 @@ hwaddress ether ea:55:45:79:05:39
 ```
 
 ### Flamme (Laravel Worker)
+
 ```
 auto eth0
 iface eth0 inet dhcp
@@ -100,6 +108,7 @@ hwaddress ether 92:b0:a7:d3:41:24
 ```
 
 ### Fern (Laravel Worker)
+
 ```
 auto eth0
 iface eth0 inet dhcp
@@ -107,6 +116,7 @@ hwaddress ether 7e:a9:a1:90:cc:20
 ```
 
 ### Lawine (PHP Worker)
+
 ```
 auto eth0
 iface eth0 inet dhcp
@@ -114,6 +124,7 @@ hwaddress ether ce:12:90:c4:d1:89
 ```
 
 ### Linie (PHP Worker)
+
 ```
 auto eth0
 iface eth0 inet dhcp
@@ -121,6 +132,7 @@ hwaddress ether 12:8d:e0:8b:be:aba
 ```
 
 ### Lugner (PHP Worker)
+
 ```
 auto eth0
 iface eth0 inet dhcp
@@ -128,29 +140,34 @@ hwaddress ether a2:50:1c:66:1a:24
 ```
 
 ### Revolte, Richter, Sein, Stark (Client)
+
 ```
 auto eth0
 iface eth0 inet dhcp
 ```
 
 ## Setup
+
 Pada .bashrc menggunakan nano :
 
 ### Heiter (DNS Server)
+
 ```
 echo 'nameserver 192.168.122.1' > /etc/resolv.conf
 apt-get update
-apt-get install bind9 -y  
+apt-get install bind9 -y
 ```
 
 ### Himmel (DHCP Server)
+
 ```
-echo 'nameserver 192.168.122.1' > /etc/resolv.conf   # Pastikan DNS Server sudah berjalan 
+echo 'nameserver 192.168.122.1' > /etc/resolv.conf   # Pastikan DNS Server sudah berjalan
 apt-get update
 apt install isc-dhcp-server -y
 ```
 
 ### Aura (DHCP Relay)
+
 ```
 iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE -s 10.44.0.0/16
 apt-get update
@@ -158,6 +175,7 @@ apt install isc-dhcp-relay -y
 ```
 
 ### Denken (Database Server)
+
 ```
 echo 'nameserver 192.168.122.1' > /etc/resolv.conf
 apt-get update
@@ -167,6 +185,7 @@ service mysql start
 ```
 
 ### Eisen (Load Balancer)
+
 ```
 echo nameserver 192.168.122.1 > /etc/resolv.conf
 apt-get update
@@ -179,6 +198,7 @@ service nginx start
 ```
 
 ### PHP Worker
+
 ```
 echo nameserver 192.168.122.1 > /etc/resolv.conf
 apt-get update
@@ -196,6 +216,7 @@ service php7.3-fpm start
 ```
 
 ### Laravel Worker
+
 ```
 echo nameserver 192.168.122.1 > /etc/resolv.conf
 rm etc/apt/sources.list.d/php.list
@@ -211,7 +232,7 @@ service nginx start
 service php8.0-fpm start
 ```
 
-## Soal 0 
+## Soal 0
 
 > kalian diminta untuk melakukan register domain berupa riegel.canyon.yyy.com untuk worker Laravel dan granz.channel.yyy.com untuk worker PHP (0) mengarah pada worker yang memiliki IP [prefix IP].x.1.
 
@@ -392,6 +413,7 @@ service bind9 restart
 ```
 
 ### Screenshot:
+
 ![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/7990d265-162d-4d42-b61e-9b3e103fd9a8)
 
 ## Soal 2
@@ -478,6 +500,7 @@ service isc-dhcp-relay restart
 ```
 
 ### Screenshot:
+
 ![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/52d7e305-6089-4631-90b5-913f0cc49f3f)
 
 ![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/f64e5d27-9625-4d8d-bdb8-e2a579b3ad47)
@@ -525,6 +548,7 @@ service isc-dhcp-server restart
 ```
 
 ### Screenshot:
+
 ![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/96568e74-1a7d-4763-b530-04b1d60523cd)
 
 ![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/0b234165-b15d-48f9-b860-dbbf4b227dc6)
@@ -638,6 +662,15 @@ apt-get install lynx -y
 
 ### Screenshot:
 
+- lynx 10.44.3.1 #IP Lawine
+  ![image](imgs/6-1.png)
+
+- lynx 10.44.3.2 #IP Linie
+  ![image](imgs/6-2.png)
+
+- lynx 10.44.3.3 #IP Lugner
+  ![image](imgs/6-3.png)
+
 ## Soal 7
 
 > Kepala suku dari Bredt Region memberikan resource server sebagai berikut:
@@ -736,13 +769,27 @@ Penjelasan:
 
 ### Screenshot:
 
+#### lynx 10.44.2.2 # IP Load Balancer
+
+![image](imgs/7-1.png)
+
+![image](imgs/7-2.png)
+
+#### Testing
+
+ab
+![image](imgs/7-ab-1.png)
+
+out.data
+![image](imgs/7-ab-2.png)
+
 ## Soal 8
 
 > Karena diminta untuk menuliskan grimoire, buatlah analisis hasil testing dengan 200 request dan 10 request/second masing-masing algoritma Load Balancer dengan ketentuan sebagai berikut:
-Nama Algoritma Load Balancer
-Report hasil testing pada Apache Benchmark
-Grafik request per second untuk masing masing algoritma. 
-Analisis
+> Nama Algoritma Load Balancer
+> Report hasil testing pada Apache Benchmark
+> Grafik request per second untuk masing masing algoritma.
+> Analisis
 
 Sebaiknya, lakukan setup terlebih dahulu sebelum memulai pekerjaan. Setelah itu, untuk konfigurasinya, kita dapat mengikuti langkah-langkah pada Soal 7. Untuk laporan Grimoire, kita meletakkannya di Google Docs pada link https://docs.google.com/document/d/1Gh81IxXaY_SFNiubnodrvTH90uhHpoHjjTT7lGO7NyI/edit?usp=sharing.
 
@@ -751,6 +798,7 @@ Terdapat 5 algoritma yang dipakai untuk nomor 8 ini yaitu, roundrobin, weighted 
 Dengan script berikut:
 
 **roundrobin.sh**
+
 ```
 #Default menggunakan Round Robin
 echo '
@@ -783,6 +831,7 @@ service nginx restart
 ```
 
 **weightedroundrobin.sh**
+
 ```
 echo '
 upstream backend  {
@@ -814,6 +863,7 @@ service nginx restart
 ```
 
 **leastconnection.sh**
+
 ```
 echo '
 upstream backend  {
@@ -846,6 +896,7 @@ service nginx restart
 ```
 
 **iphash.sh**
+
 ```
 echo '
 upstream backend  {
@@ -878,6 +929,7 @@ service nginx restart
 ```
 
 **generichash.sh**
+
 ```
 echo '
 upstream backend  {
@@ -910,16 +962,19 @@ service nginx restart
 ```
 
 **Testing di client**
+
 ```
 ab -n 200 -c 10 http://10.44.2.2/
 ```
 
 **Menampilkan htop pada worker**
+
 ```
 htop
 ```
 
 ### Screenshot:
+
 ![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/afc8d714-39c6-4f1e-8865-98026f7dc2bb)
 
 ![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/6620b105-2c03-405c-9259-5e716c248c23)
@@ -941,6 +996,7 @@ htop
 Sebelum melangkah lebih jauh, pastikan untuk menyelesaikan setup terlebih dahulu. Setelah selesai setup pada node Eisen, sekarang saatnya melakukan pengujian pada load balancer yang telah dibuat sebelumnya. Perbedaannya terletak pada pengujian menggunakan 1 worker, 2 worker, dan 3 worker.
 
 **Roundrobin 1 worker**
+
 ```
 #Default menggunakan Round Robin
 echo '
@@ -971,6 +1027,7 @@ service nginx restart
 ```
 
 **Roundrobin 2 worker**
+
 ```
 #Default menggunakan Round Robin
 echo '
@@ -1002,6 +1059,7 @@ service nginx restart
 ```
 
 **Roundrobin 3 worker**
+
 ```
 #Default menggunakan Round Robin
 echo '
@@ -1034,6 +1092,7 @@ service nginx restart
 ```
 
 **Testing di client**
+
 ```
 ab -n 200 -c 10 http://10.44.2.2/
 ```
@@ -1055,6 +1114,7 @@ ab -n 200 -c 10 http://10.44.2.2/
 > Selanjutnya coba tambahkan konfigurasi autentikasi di LB dengan dengan kombinasi username: “netics” dan password: “ajkyyy”, dengan yyy merupakan kode kelompok. Terakhir simpan file “htpasswd” nya di /etc/nginx/rahasisakita/
 
 Tambahkan code berikut pada Eisen (Load Balancer) :
+
 ```
 mkdir /etc/nginx/rahasisakita
 touch /etc/nginx/rahasisakita/.htpasswd
@@ -1066,12 +1126,14 @@ username : netics
 password : ajkE15
 
 Setelah memasukkan username dan password, sekarang coba tambahkan perintah berikut pada setup Nginx:
+
 ```
 auth_basic "Administrators Area";
 auth_basic_user_file /etc/nginx/rahasisakita/.htpasswd;
 ```
 
 ### Screenshot:
+
 ![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/f1d4bb05-dd6d-4091-a399-a1012dca963c)
 
 ![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/57a20831-1db3-46e5-aa6b-03c40251f3c5)
@@ -1085,6 +1147,7 @@ auth_basic_user_file /etc/nginx/rahasisakita/.htpasswd;
 > Lalu buat untuk setiap request yang mengandung /its akan di proxy passing menuju halaman https://www.its.ac.id.
 
 Lakukan konfigurasi tambahan pada nginx sebagai berikut:
+
 ```
 location /its {
 	proxy_pass https://www.its.ac.id;
@@ -1092,19 +1155,21 @@ location /its {
 ```
 
 Maksudnya adalah ketika kita melakukan akses pada endpoint yang mengandung /its akan diarahkan oleh proxy_pass menuju https://www.its.ac.id. Jadi ketika melakukan testing pada client dengan menggunakan perintah berikut:
+
 ```
 lynx http://10.44.2.2/its
 ```
 
 ### Screenshot:
-![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/0307f9ae-698f-40e5-944f-d15a25b2bf9b)
 
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/0307f9ae-698f-40e5-944f-d15a25b2bf9b)
 
 ## Soal 12
 
 > Selanjutnya LB ini hanya boleh diakses oleh client dengan IP [Prefix IP].3.69, [Prefix IP].3.70, [Prefix IP].4.167, dan [Prefix IP].4.168.
 
 Lakukan konfigurasi tambahan pada nginx sebagai berikut:
+
 ```
 allow 10.44.3.69;
                 allow 10.44.3.70;
@@ -1116,6 +1181,7 @@ allow 10.44.3.69;
 **IP Deny**
 
 ### Screenshot:
+
 ![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/51ff9a43-d235-4dfe-96cf-3409b3d20afe)
 
 **IP Allow**
@@ -1245,6 +1311,12 @@ Setelah itu, akan diminta untuk menginput password seperti yang kami atur pada s
 Jika berhasil, maka akan tampak CLI untuk MariaDB.
 
 ### Screenshot:
+
+MariaDB Server (Denken)
+![image](imgs/13-1.png)
+
+MariaDB Client (Worker Laravel)
+![image](imgs/13-2.png)
 
 ## Soal 14
 
@@ -1409,6 +1481,34 @@ service php8.0-fpm start
 service nginx restart
 ```
 
+Kemudian kita membuat Load Balancer pada Eisen sebagai Riegel Canyon untuk worker-worker Laravel dengan konfigurasi `lb-laravel` sebagai berikut:
+
+```sh
+echo '
+upstream laravel {
+        server 10.44.4.1;
+        server 10.44.4.2;
+        server 10.44.4.3;
+}
+
+server {
+        listen 88;
+        server_name riegel.canyon.E15.com www.riegel.canyon.E15.com;
+
+        location / {
+                proxy_pass http://laravel;
+        }
+}
+' > /etc/nginx/sites-available/lb-laravel
+```
+
+Penjelasan:
+
+- mengaitkan server dari IP Frieren, Flamme, dan Fren.
+- `listen` menggunakan port 88 karena default 80 sudah digunakan pada load balancer PHP workers
+- tersimpan pada `/etc/nginx/sites-available/lb-laravel`
+  Lakukan symlink dan restart nginx pada Eisen.
+
 Untuk pengujian, kita dapat melakukan lynx pada masing-masing IP Worker Laravel
 
 ```sh
@@ -1416,9 +1516,27 @@ apt-get install lynx -y
 lynx 10.44.4.1 # IP Frieren
 lynx 10.44.4.2 # IP Flamme
 lynx 10.44.4.3 # IP Fern
+lynx 10.44.2.2:88 # IP LB
 ```
 
 ### Screenshot:
+
+Hasil:
+
+- lynx 10.44.4.1 # IP Frieren
+
+![images](imgs/14-1.png)
+
+- lynx 10.44.4.2 # IP Flamme
+
+![images](imgs/14-2.png)
+
+- lynx 10.44.4.3 # IP Fern
+
+![images](imgs/14-3.png)
+
+- lynx 10.44.2.2:88 # IP LB
+  ![images](imgs/14-lb.png)
 
 ## Soal 15
 
@@ -1642,12 +1760,23 @@ Penjelasan:
 
 ### Screenshot:
 
-Untuk pengujian:
+Untuk pengujian hasil:
 
-- lynx 10.44.2.2:88
+- lynx 10.44.2.2:88 # IP LB
+
+![images](imgs/14-lb.png)
+
 - lynx 10.44.2.2:88/frieren
+
+![image](imgs/18-1.png)
+
 - lynx 10.44.2.2:88/flamme
+
+![image](imgs/18-2.png)
+
 - lynx 10.44.2.2:88/fern
+
+![image](imgs/18-3.png)
 
 ## Soal 19
 
@@ -1810,8 +1939,16 @@ Dapat dilihat bahwa dengan menggunakan least_conn, didapatkan time taken for tes
 
 ## Kendala:
 
+- Setiap kali DHCP direload akan memunculkan error bahwa pid dari dhcp sudah ada. Solusinya hanya melakukan penghapusan:
+
+  ```sh
+  rm /var/run/dhcpd.pid
+  ```
+
 - Setiap kali worker Laravel direload akan memunculkan error bahwa php.list sudah ada. Solusinya hanya melakukan penghapusan pada php.list tersebut:
 
   ```sh
   rm etc/apt/sources.list.d/php.list
   ```
+
+- Sempat kebingungan cara untuk melakukan ab dengan request. Solusinya adalah membuat data.json terlebih dahulu
