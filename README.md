@@ -335,6 +335,8 @@ service bind9 restart
 
 ### Screenshot:
 
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/7990d265-162d-4d42-b61e-9b3e103fd9a8)
+
 ## Soal 1
 
 > Lakukan konfigurasi sesuai dengan peta yang sudah diberikan.
