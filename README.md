@@ -398,17 +398,136 @@ service bind9 restart
 
 > Client yang melalui Switch3 mendapatkan range IP dari [prefix IP].3.16 - [prefix IP].3.32 dan [prefix IP].3.64 - [prefix IP].3.80
 
+Sebelum memulai pekerjaan, penting untuk mengatur DHCP Server terlebih dahulu. Selanjutnya, jalankan perintah berikut di DHCP Server:
+
+```
+echo "subnet 10.44.1.0 netmask 255.255.255.0 {
+}
+
+subnet 10.44.2.0 netmask 255.255.255.0 {
+}
+
+subnet 10.44.3.0 netmask 255.255.255.0 {
+        range 10.44.3.16 10.44.3.32;
+        range 10.44.3.64 10.44.3.80;
+        option routers 10.44.3.9;
+}
+```
+
 ## Soal 3
 
 > Client yang melalui Switch4 mendapatkan range IP dari [prefix IP].4.12 - [prefix IP].4.20 dan [prefix IP].4.160 - [prefix IP].4.168
+
+Berikutnya, kita harus menambahkan beberapa konfigurasi baru untuk switch4 dengan menjalankan perintah berikut:
+
+```
+subnet 10.44.4.0 netmask 255.255.255.0 {
+        range 10.44.4.12 10.44.4.20;
+        range 10.44.4.160 10.44.4.168;
+        option routers 10.44.4.9;
+}
+```
 
 ## Soal 4
 
 > Client mendapatkan DNS dari Heiter dan dapat terhubung dengan internet melalui DNS tersebut
 
+Akan kita tambahkan beberapa konfigurasi seperti option broadcast-address dan option domain-name-server agar DNS yang telah disiapkan sebelumnya dapat digunakan.
+
+```
+echo "subnet 10.44.1.0 netmask 255.255.255.0 {
+}
+
+subnet 10.44.2.0 netmask 255.255.255.0 {
+}
+
+subnet 10.44.3.0 netmask 255.255.255.0 {
+        range 10.44.3.16 10.44.3.32;
+        range 10.44.3.64 10.44.3.80;
+        option routers 10.44.3.9;
+        option broadcast-address 10.44.3.255;
+        option domain-name-servers 10.44.1.2;
+}
+
+subnet 10.44.4.0 netmask 255.255.255.0 {
+        range 10.44.4.12 10.44.4.20;
+        range 10.44.4.160 10.44.4.168;
+        option routers 10.44.4.9;
+        option broadcast-address 10.44.4.255;
+        option domain-name-servers 10.44.1.2;
+}
+```
+
+Sebelum melanjutkan, kita perlu menyiapkan konfigurasi untuk DHCP Relay terlebih dahulu. Selanjutnya, jalankan perintah berikut di DHCP Relay:
+
+```
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE -s 10.44.0.0/16
+
+
+apt-get update
+apt-get install isc-dhcp-relay -y
+service isc-dhcp-relay start
+
+echo 'SERVERS="10.44.1.1"
+INTERFACES="eth1 eth2 eth3 eth4"
+OPTIONS=""' > /etc/default/isc-dhcp-relay
+
+echo 'net.ipv4.ip_forward=1' > /etc/sysctl.conf
+
+service isc-dhcp-relay restart
+```
+
+### Screenshot:
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/52d7e305-6089-4631-90b5-913f0cc49f3f)
+
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/f64e5d27-9625-4d8d-bdb8-e2a579b3ad47)
+
 ## Soal 5
 
 > Lama waktu DHCP server meminjamkan alamat IP kepada Client yang melalui Switch3 selama 3 menit sedangkan pada client yang melalui Switch4 selama 12 menit. Dengan waktu maksimal dialokasikan untuk peminjaman alamat IP selama 96 menit
+
+Agar sesuai dengan aturan yang telah ditentukan, kita akan menggunakan fungsi default-lease-time dan max-lease-team, dengan satuan dalam detik. Untuk Switch3, waktu peminjaman IP adalah 180 detik (3 menit), untuk Switch4 adalah 720 detik (12 menit), dan max-lease-time adalah 5760 detik (96 menit).
+
+Selanjutnya, kita perlu menambahkan beberapa konfigurasi baru untuk mengatur leasing time pada switch3 dan switch4. Berikut adalah perintah yang dapat dijalankan pada DHCP Server:
+
+```
+echo "subnet 10.44.1.0 netmask 255.255.255.0 {
+}
+
+subnet 10.44.2.0 netmask 255.255.255.0 {
+}
+
+subnet 10.44.3.0 netmask 255.255.255.0 {
+        range 10.44.3.16 10.44.3.32;
+        range 10.44.3.64 10.44.3.80;
+        option routers 10.44.3.9;
+        option broadcast-address 10.44.3.255;
+        option domain-name-servers 10.44.1.2;
+        default-lease-time 180;
+        max-lease-time 5760;
+
+}
+
+subnet 10.44.4.0 netmask 255.255.255.0 {
+        range 10.44.4.12 10.44.4.20;
+        range 10.44.4.160 10.44.4.168;
+        option routers 10.44.4.9;
+        option broadcast-address 10.44.4.255;
+        option domain-name-servers 10.44.1.2;
+        default-lease-time 720;
+        max-lease-time 5760;
+}
+" > /etc/dhcp/dhcpd.conf
+
+rm /var/run/dhcpd.pid
+
+service isc-dhcp-server restart
+```
+
+### Screenshot:
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/96568e74-1a7d-4763-b530-04b1d60523cd)
+
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/0b234165-b15d-48f9-b860-dbbf4b227dc6)
 
 ## Soal 6
 
