@@ -738,13 +738,37 @@ Penjelasan:
 
 ## Soal 8
 
+> Karena diminta untuk menuliskan grimoire, buatlah analisis hasil testing dengan 200 request dan 10 request/second masing-masing algoritma Load Balancer dengan ketentuan sebagai berikut:
+Nama Algoritma Load Balancer
+Report hasil testing pada Apache Benchmark
+Grafik request per second untuk masing masing algoritma. 
+Analisis
+
+### Screenshot:
+
 ## Soal 9
+
+> Dengan menggunakan algoritma Round Robin, lakukan testing dengan menggunakan 3 worker, 2 worker, dan 1 worker sebanyak 100 request dengan 10 request/second, kemudian tambahkan grafiknya pada grimoire.
+
+### Screenshot:
 
 ## Soal 10
 
+> Selanjutnya coba tambahkan konfigurasi autentikasi di LB dengan dengan kombinasi username: “netics” dan password: “ajkyyy”, dengan yyy merupakan kode kelompok. Terakhir simpan file “htpasswd” nya di /etc/nginx/rahasisakita/
+
+### Screenshot:
+
 ## Soal 11
 
+> Lalu buat untuk setiap request yang mengandung /its akan di proxy passing menuju halaman https://www.its.ac.id.
+
+### Screenshot:
+
 ## Soal 12
+
+> Selanjutnya LB ini hanya boleh diakses oleh client dengan IP [Prefix IP].3.69, [Prefix IP].3.70, [Prefix IP].4.167, dan [Prefix IP].4.168.
+
+### Screenshot:
 
 ## Soal 13
 
