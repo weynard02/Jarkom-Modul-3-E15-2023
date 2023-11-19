@@ -162,6 +162,7 @@ apt install isc-dhcp-relay -y
 echo 'nameserver 192.168.122.1' > /etc/resolv.conf
 apt-get update
 apt-get install mariadb-server -y
+
 service mysql start
 ```
 
@@ -173,6 +174,8 @@ apt-get install apache2-utils -y
 apt-get install nginx php php-fpm -y
 apt-get install htop -y
 apt-get install lynx -y
+
+service nginx start
 ```
 
 ### PHP Worker
@@ -187,11 +190,25 @@ service php7.3-fpm start
 service php7.3-fpm status
 apt-get install wget unzip -y
 apt-get install htop -y
+
+service nginx start
+service php7.3-fpm start
 ```
 
 ### Laravel Worker
 ```
+echo nameserver 192.168.122.1 > /etc/resolv.conf
+rm etc/apt/sources.list.d/php.list
+apt-get update
+apt-get install mariadb-client -y
+apt-get install htop -y
+mariadb --host=10.44.2.1 --port=3306 --user=kelompokE15 --password
+apt-get install lynx -y
+apt-get install php8.0-mbstring php8.0-xml php8.0-cli   php8.0-common php8.0-intl php8.0-opcache php8.0-readline php8.0-mysql php8.0-fpm php8.0-curl unzip wget -y
+apt-get install nginx -y
 
+service nginx start
+service php8.0-fpm start
 ```
 
 ## Soal 0
