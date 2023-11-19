@@ -744,13 +744,311 @@ Report hasil testing pada Apache Benchmark
 Grafik request per second untuk masing masing algoritma. 
 Analisis
 
+Sebaiknya, lakukan setup terlebih dahulu sebelum memulai pekerjaan. Setelah itu, untuk konfigurasinya, kita dapat mengikuti langkah-langkah pada Soal 7. Untuk laporan Grimoire, kita meletakkannya di Google Docs pada link https://docs.google.com/document/d/1Gh81IxXaY_SFNiubnodrvTH90uhHpoHjjTT7lGO7NyI/edit?usp=sharing.
+
+Terdapat 5 algoritma yang dipakai untuk nomor 8 ini yaitu, roundrobin, weighted roundrobin, least connection, ip hash, dan generic hash.
+
+Dengan script berikut:
+
+**roundrobin.sh**
+```
+#Default menggunakan Round Robin
+echo '
+upstream backend  {
+        server 10.44.3.1; #IP Lawine
+        server 10.44.3.2; #IP Linie
+        server 10.44.3.3; #IP Lugner
+}
+
+server {
+listen 80;
+server_name granz.channel.E15.com;
+
+        location / {
+                proxy_pass http://backend;
+                proxy_set_header    X-Real-IP $remote_addr;
+                proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header    Host $http_host;
+        }
+
+error_log /var/log/nginx/lb_error.log;
+access_log /var/log/nginx/lb_access.log;
+
+}
+' > /etc/nginx/sites-available/lb-eisen
+
+service nginx restart
+
+#ab -n 200 -c 10 http://10.44.2.2/
+```
+
+**weightedroundrobin.sh**
+```
+echo '
+upstream backend  {
+        server 10.44.3.1 weight=640; #IP Lawine
+        server 10.44.3.2 weight=200; #IP Linie
+        server 10.44.3.3 weight=25; #IP Lugner
+}
+
+server {
+listen 80;
+server_name granz.channel.E15.com;
+
+        location / {
+                proxy_pass http://backend;
+                proxy_set_header    X-Real-IP $remote_addr;
+                proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header    Host $http_host;
+        }
+
+error_log /var/log/nginx/lb_error.log;
+access_log /var/log/nginx/lb_access.log;
+
+}
+' > /etc/nginx/sites-available/lb-eisen
+
+service nginx restart
+
+#ab -n 200 -c 10 http://10.44.2.2/
+```
+
+**leastconnection.sh**
+```
+echo '
+upstream backend  {
+        least_conn;
+        server 10.44.3.1; #IP Lawine
+        server 10.44.3.2; #IP Linie
+        server 10.44.3.3; #IP Lugner
+}
+
+server {
+listen 80;
+server_name granz.channel.E15.com;
+
+        location / {
+                proxy_pass http://backend;
+                proxy_set_header    X-Real-IP $remote_addr;
+                proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header    Host $http_host;
+        }
+
+error_log /var/log/nginx/lb_error.log;
+access_log /var/log/nginx/lb_access.log;
+
+}
+' > /etc/nginx/sites-available/lb-eisen
+
+service nginx restart
+
+#ab -n 200 -c 10 http://10.44.2.2/
+```
+
+**iphash.sh**
+```
+echo '
+upstream backend  {
+        ip_hash;
+        server 10.44.3.1; #IP Lawine
+        server 10.44.3.2; #IP Linie
+        server 10.44.3.3; #IP Lugner
+}
+
+server {
+listen 80;
+server_name granz.channel.E15.com;
+
+        location / {
+                proxy_pass http://backend;
+                proxy_set_header    X-Real-IP $remote_addr;
+                proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header    Host $http_host;
+        }
+
+error_log /var/log/nginx/lb_error.log;
+access_log /var/log/nginx/lb_access.log;
+
+}
+' > /etc/nginx/sites-available/lb-eisen
+
+service nginx restart
+
+#ab -n 200 -c 10 http://10.44.2.2/
+```
+
+**generichash.sh**
+```
+echo '
+upstream backend  {
+        hash $request_uri consistent;
+        server 10.44.3.1; #IP Lawine
+        server 10.44.3.2; #IP Linie
+        server 10.44.3.3; #IP Lugner
+}
+
+server {
+listen 80;
+server_name granz.channel.E15.com;
+
+        location / {
+                proxy_pass http://backend;
+                proxy_set_header    X-Real-IP $remote_addr;
+                proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header    Host $http_host;
+        }
+
+error_log /var/log/nginx/lb_error.log;
+access_log /var/log/nginx/lb_access.log;
+
+}
+' > /etc/nginx/sites-available/lb-eisen
+
+service nginx restart
+
+#ab -n 200 -c 10 http://10.44.2.2/
+```
+
+**Testing di client**
+```
+ab -n 200 -c 10 http://10.44.2.2/
+```
+
+**Menampilkan htop pada worker**
+```
+htop
+```
+
 ### Screenshot:
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/afc8d714-39c6-4f1e-8865-98026f7dc2bb)
+
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/6620b105-2c03-405c-9259-5e716c248c23)
+
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/0e95926c-491f-4a62-9bd6-7647489cf44d)
+
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/74001c31-d2e4-4017-87b8-769e985d926b)
+
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/e6e315ee-5bf3-4ab0-a09d-c63cbc453be6)
+
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/e619d4d6-2e58-4c8e-bbf6-b003d08021ff)
+
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/cf4d7efa-466c-4807-bdf6-eb9813398b69)
 
 ## Soal 9
 
 > Dengan menggunakan algoritma Round Robin, lakukan testing dengan menggunakan 3 worker, 2 worker, dan 1 worker sebanyak 100 request dengan 10 request/second, kemudian tambahkan grafiknya pada grimoire.
 
+Sebelum melangkah lebih jauh, pastikan untuk menyelesaikan setup terlebih dahulu. Setelah selesai setup pada node Eisen, sekarang saatnya melakukan pengujian pada load balancer yang telah dibuat sebelumnya. Perbedaannya terletak pada pengujian menggunakan 1 worker, 2 worker, dan 3 worker.
+
+**Roundrobin 1 worker**
+```
+#Default menggunakan Round Robin
+echo '
+upstream backend  {
+        server 10.44.3.1; #IP Lawine
+}
+
+server {
+listen 80;
+server_name granz.channel.E15.com;
+
+        location / {
+                proxy_pass http://backend;
+                proxy_set_header    X-Real-IP $remote_addr;
+                proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header    Host $http_host;
+        }
+
+error_log /var/log/nginx/lb_error.log;
+access_log /var/log/nginx/lb_access.log;
+
+}
+' > /etc/nginx/sites-available/lb-eisen
+
+service nginx restart
+
+#ab -n 200 -c 10 http://10.44.2.2/
+```
+
+**Roundrobin 2 worker**
+```
+#Default menggunakan Round Robin
+echo '
+upstream backend  {
+        server 10.44.3.1; #IP Lawine
+        server 10.44.3.2; #IP Linie
+}
+
+server {
+listen 80;
+server_name granz.channel.E15.com;
+
+        location / {
+                proxy_pass http://backend;
+                proxy_set_header    X-Real-IP $remote_addr;
+                proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header    Host $http_host;
+        }
+
+error_log /var/log/nginx/lb_error.log;
+access_log /var/log/nginx/lb_access.log;
+
+}
+' > /etc/nginx/sites-available/lb-eisen
+
+service nginx restart
+
+#ab -n 200 -c 10 http://10.44.2.2/
+```
+
+**Roundrobin 3 worker**
+```
+#Default menggunakan Round Robin
+echo '
+upstream backend  {
+        server 10.44.3.1; #IP Lawine
+        server 10.44.3.2; #IP Linie
+        server 10.44.3.3; #IP Lugner
+}
+
+server {
+listen 80;
+server_name granz.channel.E15.com;
+
+        location / {
+                proxy_pass http://backend;
+                proxy_set_header    X-Real-IP $remote_addr;
+                proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header    Host $http_host;
+        }
+
+error_log /var/log/nginx/lb_error.log;
+access_log /var/log/nginx/lb_access.log;
+
+}
+' > /etc/nginx/sites-available/lb-eisen
+
+service nginx restart
+
+#ab -n 200 -c 10 http://10.44.2.2/
+```
+
+**Testing di client**
+```
+ab -n 200 -c 10 http://10.44.2.2/
+```
+
 ### Screenshot:
+
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/946ed0e4-c2ec-47f0-96b1-40db31168b2d)
+
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/0528aae2-ee95-43ab-8f36-487aa2632959)
+
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/09624ff7-c30c-4e85-9cb5-ed12283f15e6)
+
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/6ccf2f4e-dc2a-4d2a-bd6b-c1cd9189789a)
+
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/8439c74a-c994-4f7a-bb29-22f9ab52f8aa)
 
 ## Soal 10
 
