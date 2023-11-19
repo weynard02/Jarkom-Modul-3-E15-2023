@@ -211,7 +211,7 @@ service nginx start
 service php8.0-fpm start
 ```
 
-## Soal 0
+## Soal 0 
 
 > kalian diminta untuk melakukan register domain berupa riegel.canyon.yyy.com untuk worker Laravel dan granz.channel.yyy.com untuk worker PHP (0) mengarah pada worker yang memiliki IP [prefix IP].x.1.
 
@@ -316,13 +316,99 @@ service bind9 restart
 
 ## Soal 1
 
+> Lakukan konfigurasi sesuai dengan peta yang sudah diberikan.
+
+Langkah pertama adalah menyiapkan konfigurasi topologi dan setup sesuai dengan petunjuk di atas. Selanjutnya, untuk keperluan pengujian, kita perlu menambahkan domain terdaftar, yaitu riegel.canyon.E15.com untuk worker Laravel dan granz.channel.E15.com untuk worker PHP yang mengarah ke worker dengan IP 10.44.x.1.
+
+Selanjutnya pada DNS Server (Heiter), kita perlu menjalankan script di bawah ini:
+
+```
+echo "nameserver 192.168.122.1" > /etc/resolv.conf
+apt-get update
+apt-get install bind9 -y
+
+echo '
+zone "riegel.canyon.E15.com" {
+        type master;
+        file "/etc/bind/riegel/riegel.canyon.E15.com";
+};
+
+zone "granz.channel.E15.com" {
+        type master;
+        file "/etc/bind/granz/granz.channel.E15.com";
+};
+' > /etc/bind/named.conf.local
+
+mkdir /etc/bind/riegel/
+
+echo '
+;
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     riegel.canyon.E15.com. root.riegel.canyon.E15.com. (
+                     2023111301         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@       IN      NS      riegel.canyon.E15.com.
+@       IN      A       10.44.4.1 ; IP Frieren
+www     IN      CNAME   riegel.canyon.E15.com.
+' > /etc/bind/riegel/riegel.canyon.E15.com
+
+mkdir /etc/bind/granz/
+
+echo '
+;
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     granz.channel.E15.com. root.granz.channel.E15.com. (
+                     2023111302         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@       IN      NS      granz.channel.E15.com.
+@       IN      A       10.44.3.1 ; IP Lawine
+www     IN      CNAME   granz.channel.E15.com.
+' > /etc/bind/granz/granz.channel.E15.com
+
+echo 'options {
+        directory "/var/cache/bind";
+
+        forwarders {
+                   192.168.122.1;
+          };
+        //dnssec-validation auto;
+        allow-query{ any; };
+        listen-on-v6 { any; };
+};' > /etc/bind/named.conf.options
+
+service bind9 restart
+```
+
+### Screenshot:
+![image](https://github.com/weynard02/Jarkom-Modul-3-E15-2023/assets/106955551/7990d265-162d-4d42-b61e-9b3e103fd9a8)
+
 ## Soal 2
+
+> Client yang melalui Switch3 mendapatkan range IP dari [prefix IP].3.16 - [prefix IP].3.32 dan [prefix IP].3.64 - [prefix IP].3.80
 
 ## Soal 3
 
+> Client yang melalui Switch4 mendapatkan range IP dari [prefix IP].4.12 - [prefix IP].4.20 dan [prefix IP].4.160 - [prefix IP].4.168
+
 ## Soal 4
 
+> Client mendapatkan DNS dari Heiter dan dapat terhubung dengan internet melalui DNS tersebut
+
 ## Soal 5
+
+> Lama waktu DHCP server meminjamkan alamat IP kepada Client yang melalui Switch3 selama 3 menit sedangkan pada client yang melalui Switch4 selama 12 menit. Dengan waktu maksimal dialokasikan untuk peminjaman alamat IP selama 96 menit
 
 ## Soal 6
 
