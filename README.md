@@ -304,9 +304,9 @@ server {
 Penjelasan:
 
 - Weight ini dihitung melalui hasil perkalian
-  - Lawine 4*2*80 = 640
-  - Linie 2*2*50 = 200
-  - Lugner 1*1*25 = 25
+  - Lawine 4x2x80 = 640
+  - Linie 2x2x50 = 200
+  - Lugner 1x1x25 = 25
 - menggunakan listen port default=80
 - menggunakan server name `granz.channel.E15.com www.granz.channel.E15.com`
 - konfigurasi ini dinamakan `lb-eisen` pada `/etc/nginx/sites-available/lb-eisen`
