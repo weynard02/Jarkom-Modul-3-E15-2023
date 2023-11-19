@@ -779,7 +779,8 @@ Penjelasan:
 
 #### Testing
 
-ab
+#### ab -n 1000 -c 100 -g out.data http://10.44.2.2/
+
 ![image](imgs/7-ab-1.png)
 
 out.data
@@ -1873,7 +1874,7 @@ Penjelasan: Di mana 10.44.2.2:88 merupakan ip dan port untuk load balancer larav
 
 #### Kesimpulan:
 
-Berdasarkan hasil analisis yang diberikan, dengan konfigurasi PHP-FPM, dapat meningkatkan performa seperti time taken for tests dan requests per second. Akan tetapi, tidak ada jaminan bahwa hasil yang didapatkan selalu lebih baik dari yang lain karena ada percobaan hanya dilakukan sekali, beberapa percobaan yang tidak membuktikan bahwa meningkatkan PHP-FPM dapat performa yang lebih baik, dan ada faktor lain seperti kekuatan server, load balancer, atau worker
+Berdasarkan hasil analisis yang diberikan, dengan konfigurasi PHP-FPM, dapat meningkatkan performa seperti time taken for tests dan requests per second. Akan tetapi, tidak ada jaminan bahwa hasil yang didapatkan selalu lebih baik dari yang lain karena percobaan hanya dilakukan sekali, ada beberapa percobaan yang tidak membuktikan bahwa meningkatkan PHP-FPM dapat performa yang lebih baik, dan ada faktor lain seperti kekuatan server, load balancer, atau worker.
 
 ## Soal 20
 
@@ -1935,7 +1936,7 @@ dengan konfigurasi PHP-FPM Naik 3
 
 #### Kesimpulan:
 
-Dapat dilihat bahwa dengan menggunakan least_conn, didapatkan time taken for tests lebih cepat, requests per second yang lebih besar, longest request yang lebih rendah, dan CPU yang lebih rendah daripada menggunakan round robin
+Dapat dilihat bahwa dengan menggunakan `least_conn`, didapatkan time taken for tests lebih cepat, requests per second yang lebih besar, longest request yang lebih rendah, dan CPU yang lebih rendah daripada menggunakan round robin.
 
 ---
 
@@ -1953,4 +1954,4 @@ Dapat dilihat bahwa dengan menggunakan least_conn, didapatkan time taken for tes
   rm etc/apt/sources.list.d/php.list
   ```
 
-- Sempat kebingungan cara untuk melakukan ab dengan request. Solusinya adalah membuat data.json terlebih dahulu
+- Sempat kebingungan cara untuk melakukan ab dengan request. Solusinya adalah membuat data.json terlebih dahulu.
