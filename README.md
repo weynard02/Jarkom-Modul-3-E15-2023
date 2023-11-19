@@ -136,7 +136,60 @@ iface eth0 inet dhcp
 ## Setup
 Pada .bashrc menggunakan nano :
 
-### Aura
+### Heiter (DNS Server)
+```
+echo 'nameserver 192.168.122.1' > /etc/resolv.conf
+apt-get update
+apt-get install bind9 -y  
+```
+
+### Himmel (DHCP Server)
+```
+echo 'nameserver 192.168.122.1' > /etc/resolv.conf   # Pastikan DNS Server sudah berjalan 
+apt-get update
+apt install isc-dhcp-server -y
+```
+
+### Aura (DHCP Relay)
+```
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE -s 10.44.0.0/16
+apt-get update
+apt install isc-dhcp-relay -y
+```
+
+### Denken (Database Server)
+```
+echo 'nameserver 192.168.122.1' > /etc/resolv.conf
+apt-get update
+apt-get install mariadb-server -y
+service mysql start
+```
+
+### Eisen (Load Balancer)
+```
+echo nameserver 192.168.122.1 > /etc/resolv.conf
+apt-get update
+apt-get install apache2-utils -y
+apt-get install nginx php php-fpm -y
+apt-get install htop -y
+apt-get install lynx -y
+```
+
+### PHP Worker
+```
+echo nameserver 192.168.122.1 > /etc/resolv.conf
+apt-get update
+apt-get install nginx -y
+service nginx restart
+apt-get install lynx -y
+apt-get install php php-fpm -y
+service php7.3-fpm start
+service php7.3-fpm status
+apt-get install wget unzip -y
+apt-get install htop -y
+```
+
+### Laravel Worker
 ```
 
 ```
